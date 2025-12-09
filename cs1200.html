@@ -1,0 +1,2240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hackathon Helper</title>
+    <!-- 1. Tailwind CSS for rapid styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 2. Lucide icons (the same ones from your mockups) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- 3. KaTeX for LaTeX rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" integrity="sha384-GvrOXuhMATgEsSwCs4smul74iXGOixntILdUW9XmUC6+HX0sLNAK3q71HotJqlAn" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js" integrity="sha384-cpW21h6RZv/phavutF+AuVYrr+dA8xD9zs6FwLpaCct6O9ctzYFfFr4dgmgccOTx" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+    
+    <!-- 4. Marked.js for markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <!-- 5. Prism.js for code syntax highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+    
+    <style>
+        /* 7. Use the clean "Inter" font family */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for chat */
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+        .chat-messages::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 3px;
+        }
+        /* Styling for the Mentor Toggle Switch */
+        .toggle-checkbox:checked {
+            background-color: #22c55e; /* green-500 */
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #22c55e;
+        }
+        .toggle-checkbox:checked + .toggle-label .toggle-dot {
+            transform: translateX(100%);
+        }
+        .toggle-label {
+            transition: background-color 0.2s ease-in-out;
+        }
+        .toggle-dot {
+            transition: transform 0.2s ease-in-out;
+        }
+        /* Bottom Nav active state */
+        .nav-item.active svg {
+            color: #16a34a; /* green-600 */
+        }
+        .nav-item.active span {
+            color: #16a34a; /* green-600 */
+        }
+        
+        /* Enhanced formatting for AI messages */
+        .ai-message-content {
+            line-height: 1.6;
+        }
+        .ai-message-content p {
+            margin-bottom: 1rem;
+        }
+        .ai-message-content p:last-child {
+            margin-bottom: 0;
+        }
+        .ai-message-content ul, .ai-message-content ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .ai-message-content li {
+            margin-bottom: 0.5rem;
+        }
+        .ai-message-content blockquote {
+            border-left: 4px solid #10b981;
+            padding-left: 1rem;
+            margin: 1rem 0;
+            font-style: italic;
+            color: #4b5563;
+        }
+        .ai-message-content h1, .ai-message-content h2, .ai-message-content h3 {
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        .ai-message-content h1 {
+            font-size: 1.5rem;
+        }
+        .ai-message-content h2 {
+            font-size: 1.25rem;
+        }
+        .ai-message-content h3 {
+            font-size: 1.125rem;
+        }
+        .ai-message-content a {
+            color: #10b981;
+            text-decoration: underline;
+        }
+        .ai-message-content code {
+            background-color: #f3f4f6;
+            padding: 0.125rem 0.25rem;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+        .ai-message-content pre {
+            background-color: #2d3748;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        .ai-message-content pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        .katex-display {
+            margin: 1rem 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+        .code-block-container {
+            position: relative;
+            margin: 1rem 0;
+        }
+        .code-language {
+            position: absolute;
+            top: 0.25rem;
+            right: 0.25rem;
+            background-color: rgba(0, 0, 0, 0.3);
+            color: #e2e8f0;
+            font-size: 0.75rem;
+            padding: 0.125rem 0.5rem;
+            border-radius: 0.25rem;
+            text-transform: uppercase;
+        }
+        .copy-code-btn {
+            position: absolute;
+            top: 0.25rem;
+            right: 0.25rem;
+            background-color: rgba(0, 0, 0, 0.3);
+            color: #e2e8f0;
+            border: none;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .copy-code-btn:hover {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Loading spinner for Kickstarter generator */
+        .spinner {
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 3px solid #10b981;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Login page styles */
+        .auth-container {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .auth-card {
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .input-group {
+            position: relative;
+        }
+        .input-group input, .input-group select {
+            padding-left: 2.5rem;
+        }
+        .input-group .input-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+            cursor: pointer;
+        }
+        
+        /* Added styles for clickable mentor statistics */
+        #mentor-stat-questions, #mentor-stat-answered {
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        #mentor-stat-questions:hover, #mentor-stat-answered:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <!-- Main container to simulate a mobile app screen -->
+    <div class="max-w-md mx-auto min-h-screen bg-white shadow-lg overflow-hidden">
+        
+        <!-- Login Page -->
+        <div id="page-login" class="page flex flex-col h-screen auth-container">
+            <div class="flex-grow flex items-center justify-center p-6">
+                <div class="auth-card w-full max-w-md p-8">
+                    <div class="text-center mb-8">
+                        <h1 class="text-3xl font-bold text-gray-800 mb-2">Hackathon Helper</h1>
+                        <p class="text-gray-600">Sign in to your account</p>
+                    </div>
+                    
+                    <form id="login-form" class="space-y-6">
+                        <div class="input-group">
+                            <i data-lucide="mail" class="input-icon h-5 w-5"></i>
+                            <input type="email" id="login-email" placeholder="Email address" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        </div>
+                        
+                        <div class="input-group">
+                            <i data-lucide="lock" class="input-icon h-5 w-5"></i>
+                            <input type="password" id="login-password" placeholder="Password" required
+                                class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <i data-lucide="eye" class="password-toggle h-5 w-5" id="toggle-login-password"></i>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="remember-me" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                <label for="remember-me" class="ml-2 block text-sm text-gray-700">Remember me</label>
+                            </div>
+                            <a href="#" id="forgot-password-link" class="text-sm text-green-600 hover:text-green-500">Forgot password?</a>
+                        </div>
+                        
+                        <button type="submit" id="btn-login" class="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-700 transition duration-200">
+                            Sign In
+                        </button>
+                        
+                        <div class="text-center mt-4">
+                            <p class="text-sm text-gray-600">
+                                Don't have an account? 
+                                <a href="#" id="register-link" class="text-green-600 hover:text-green-500 font-medium">Sign up</a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Registration Page -->
+        <div id="page-register" class="page hidden flex flex-col h-screen auth-container">
+            <div class="flex-grow flex items-center justify-center p-6">
+                <div class="auth-card w-full max-w-md p-8">
+                    <div class="text-center mb-8">
+                        <h1 class="text-3xl font-bold text-gray-800 mb-2">Hackathon Helper</h1>
+                        <p class="text-gray-600">Create your account</p>
+                    </div>
+                    
+                    <form id="register-form" class="space-y-6">
+                        <div class="input-group">
+                            <i data-lucide="user" class="input-icon h-5 w-5"></i>
+                            <input type="text" id="register-name" placeholder="Full name" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        </div>
+                        
+                        <div class="input-group">
+                            <i data-lucide="mail" class="input-icon h-5 w-5"></i>
+                            <input type="email" id="register-email" placeholder="Email address" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        </div>
+                        
+                        <div class="input-group">
+                            <i data-lucide="lock" class="input-icon h-5 w-5"></i>
+                            <input type="password" id="register-password" placeholder="Password" required
+                                class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <i data-lucide="eye" class="password-toggle h-5 w-5" id="toggle-register-password"></i>
+                        </div>
+                        
+                        <div class="input-group">
+                            <i data-lucide="lock" class="input-icon h-5 w-5"></i>
+                            <input type="password" id="register-confirm-password" placeholder="Confirm password" required
+                                class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <i data-lucide="eye" class="password-toggle h-5 w-5" id="toggle-register-confirm-password"></i>
+                        </div>
+                        
+                        <div class="input-group">
+                            <i data-lucide="help-circle" class="input-icon h-5 w-5"></i>
+                            <select id="register-security-question" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                <option value="">Select a security question</option>
+                                <option value="pet" selected>What was name of your first pet?</option>
+                            </select>
+                        </div>
+                        
+                        <div class="input-group">
+                            <i data-lucide="shield" class="input-icon h-5 w-5"></i>
+                            <input type="text" id="register-security-answer" placeholder="Security answer" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <input type="checkbox" id="agree-terms" class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                            <label for="agree-terms" class="ml-2 block text-sm text-gray-700">
+                                I agree to <a href="#" class="text-green-600 hover:text-green-500">Terms and Conditions</a>
+                            </label>
+                        </div>
+                        
+                        <button type="submit" id="btn-register" class="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-700 transition duration-200">
+                            Create Account
+                        </button>
+                        
+                        <div class="text-center mt-4">
+                            <p class="text-sm text-gray-600">
+                                Already have an account? 
+                                <a href="#" id="login-link" class="text-green-600 hover:text-green-500 font-medium">Sign in</a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Forgot Password Page -->
+        <div id="page-forgot-password" class="page hidden flex flex-col h-screen auth-container">
+            <div class="flex-grow flex items-center justify-center p-6">
+                <div class="auth-card w-full max-w-md p-8">
+                    <div class="text-center mb-8">
+                        <h1 class="text-3xl font-bold text-gray-800 mb-2">Reset Password</h1>
+                        <p class="text-gray-600">Answer your security question to reset your password</p>
+                    </div>
+                    
+                    <form id="forgot-password-form" class="space-y-6">
+                        <div class="input-group">
+                            <i data-lucide="mail" class="input-icon h-5 w-5"></i>
+                            <input type="email" id="forgot-email" placeholder="Email address" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        </div>
+                        
+                        <div id="security-question-container" class="hidden space-y-6">
+                            <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                                <p id="security-question-text" class="font-medium text-gray-700">What was name of your first pet?</p>
+                            </div>
+                            
+                            <div class="input-group">
+                                <i data-lucide="shield" class="input-icon h-5 w-5"></i>
+                                <input type="text" id="security-answer" placeholder="Your answer" required
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            </div>
+                            
+                            <div class="input-group">
+                                <i data-lucide="lock" class="input-icon h-5 w-5"></i>
+                                <input type="password" id="new-password" placeholder="New password" required
+                                    class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                <i data-lucide="eye" class="password-toggle h-5 w-5" id="toggle-new-password"></i>
+                            </div>
+                            
+                            <div class="input-group">
+                                <i data-lucide="lock" class="input-icon h-5 w-5"></i>
+                                <input type="password" id="confirm-new-password" placeholder="Confirm new password" required
+                                    class="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                                <i data-lucide="eye" class="password-toggle h-5 w-5" id="toggle-confirm-new-password"></i>
+                            </div>
+                        </div>
+                        
+                        <button type="button" id="btn-reset-password" class="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-700 transition duration-200">
+                            Find Account
+                        </button>
+                        
+                        <div class="text-center mt-4">
+                            <p class="text-sm text-gray-600">
+                                <a href="#" id="back-to-login" class="text-green-600 hover:text-green-500 font-medium">Back to sign in</a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main App Container (Hidden until logged in) -->
+        <div id="app-container" class="hidden flex flex-col h-screen">
+
+            <!-- 
+            ============================================================
+            DYNAMIC HEADER
+            ============================================================
+            -->
+            <header class="p-4 flex justify-between items-center border-b border-gray-200">
+                <div class="flex items-center">
+                    <h1 id="header-title" class="text-xl font-bold text-gray-800">Dashboard</h1>
+                    <!-- Mentor Toggle Switch -->
+                    <div class="flex items-center ml-3">
+                        <input type="checkbox" id="mentor-toggle" class="toggle-checkbox absolute block w-10 h-6 rounded-full bg-gray-300 opacity-0 z-10 cursor-pointer">
+                        <label for="mentor-toggle" class="toggle-label relative block w-10 h-6 rounded-full bg-gray-300 cursor-pointer">
+                            <span class="toggle-dot absolute left-1 top-1 block w-4 h-4 rounded-full bg-white shadow-md"></span>
+                        </label>
+                    </div>
+                    <span id="mentor-label" class="ml-2 text-sm font-medium text-gray-500">Mentor</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="btn-header-search"><i data-lucide="search" class="text-gray-500 hover:text-green-600"></i></button>
+                    <button id="btn-header-notifications" class="relative">
+                        <i data-lucide="bell" class="text-gray-500 hover:text-green-600"></i>
+                        <span id="notification-dot" class="hidden absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full border-2 border-white"></span>
+                    </button>
+                    <button id="btn-profile" class="relative">
+                        <i data-lucide="user-circle" class="text-gray-500 hover:text-green-600"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- 
+            ============================================================
+            MAIN CONTENT AREA (Pages)
+            ============================================================
+            -->
+            <main class="flex-grow overflow-y-auto">
+                <!-- Page 1: Home Dashboard (Participant) (Mockup 03) -->
+                <div id="page-dashboard" class="page flex-col h-full p-4 space-y-6">
+                    <button id="btn-ask-question" class="w-full text-lg font-semibold text-green-700 bg-white border-2 border-green-600 rounded-lg py-3 px-4 flex items-center justify-center space-x-2 transition hover:bg-green-50">
+                        <i data-lucide="plus" class="h-6 w-6"></i>
+                        <span>Ask a Question</span>
+                    </button>
+                    <section>
+                        <h2 class="text-lg font-semibold text-gray-700 mb-3">Trending Questions</h2>
+                        <div id="trending-questions-list" class="space-y-3"></div>
+                    </section>
+                    <section>
+                        <h2 class="text-lg font-semibold text-gray-700 mb-3">Announcements</h2>
+                        <div id="announcements-list" class="space-y-3"></div>
+                    </section>
+                </div>
+
+                <!-- Page 2: Ask a Question (Mockup 04) -->
+                <div id="page-ask-question" class="page hidden flex-col h-full">
+                    <div class="p-4 flex items-center border-b border-gray-200">
+                        <button id="btn-ask-back" class="btn-back mr-3 p-1 rounded-full hover:bg-gray-100"><i data-lucide="arrow-left" class="text-gray-600"></i></button>
+                        <h1 class="text-xl font-bold text-gray-800">Ask a Question</h1>
+                    </div>
+                    <div class="p-4 space-y-4">
+                        <div>
+                            <label for="question-title" class="block text-sm font-medium text-gray-700 mb-1">Question Title</label>
+                            <input type="text" id="question-title" placeholder="e.g., How to use Flexbox?" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500">
+                        </div>
+                        <div>
+                            <label for="question-category" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                            <select id="question-category" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500">
+                                <option>Select category...</option><option>General</option><option>Frontend</option><option>Backend</option><option>API</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="question-details" class="block text-sm font-medium text-gray-700 mb-1">Question Details</label>
+                            <textarea id="question-details" rows="6" placeholder="Describe your issue in detail..." class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500"></textarea>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button class="flex-1 bg-gray-100 text-gray-700 font-medium py-2 px-4 rounded-lg border border-gray-300 hover:bg-gray-200">Attach Code</button>
+                            <button class="flex-1 bg-gray-100 text-gray-700 font-medium py-2 px-4 rounded-lg border border-gray-300 hover:bg-gray-200">Add Media</button>
+                        </div>
+                        <button id="btn-submit-question" class="w-full text-lg font-semibold text-white bg-green-600 rounded-lg py-3 px-4 transition hover:bg-green-700">Submit Question</button>
+                    </div>
+                </div>
+                
+                <!-- Page 3: Q&A Chat View (Mockup 05) -->
+                <div id="page-qa-chat-view" class="page hidden flex-col h-full">
+                    <div class="p-4 flex items-center border-b border-gray-200">
+                        <button id="btn-qa-chat-back" class="btn-back mr-3 p-1 rounded-full hover:bg-gray-100"><i data-lucide="arrow-left" class="text-gray-600"></i></button>
+                        <h1 id="qa-chat-title" class="text-xl font-bold text-gray-800 truncate">Chat</h1>
+                    </div>
+                    <main id="qa-chat-messages" class="chat-messages flex-grow p-4 space-y-5 overflow-y-auto bg-gray-50"></main>
+                    <footer class="p-4 border-t border-gray-200 bg-white">
+                        <div class="flex items-center space-x-2">
+                            <input type="text" id="qa-chat-input" placeholder="Follow-up question..." class="flex-grow border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500">
+                            <button id="btn-send-qa-follow-up" class="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700"><i data-lucide="send" class="h-5 w-5"></i></button>
+                        </div>
+                    </footer>
+                </div>
+
+                <!-- Page 4: Mentor Dashboard (Mockup 07) -->
+                <div id="page-mentor-dashboard" class="page hidden flex-col h-full p-4 space-y-6">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div id="mentor-stat-questions" class="text-center p-4 bg-green-50 border border-green-200 rounded-lg"></div>
+                        <div id="mentor-stat-answered" class="text-center p-4 bg-gray-50 border border-gray-200 rounded-lg"></div>
+                    </div>
+                    <section>
+                        <h2 class="text-lg font-semibold text-gray-700 mb-3">High Priority Questions</h2>
+                        <div id="mentor-questions-list" class="space-y-3"></div>
+                    </section>
+                    <button id="btn-post-announcement" class="w-full text-lg font-semibold text-green-700 bg-white border-2 border-green-600 rounded-lg py-3 px-4 transition hover:bg-green-50">
+                        Post Announcement
+                    </button>
+                </div>
+
+                <!-- Page 5: Notifications Panel (Mockup 10) -->
+                <div id="page-notifications" class="page hidden flex-col h-full">
+                    <div class="p-4 flex items-center border-b border-gray-200">
+                        <button id="btn-notifications-back" class="btn-back mr-3 p-1 rounded-full hover:bg-gray-100"><i data-lucide="arrow-left" class="text-gray-600"></i></button>
+                        <h1 class="text-xl font-bold text-gray-800">Notifications</h1>
+                        <span id="notification-count" class="ml-2 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">3</span>
+                    </div>
+                    <div id="notifications-list" class="flex-grow p-4 space-y-3 overflow-y-auto"></div>
+                    <footer class="p-4 border-t border-gray-200 bg-white">
+                        <button class="w-full bg-gray-100 text-gray-700 font-medium py-2 px-4 rounded-lg border border-gray-300 hover:bg-gray-200">
+                            Mark all as read
+                        </button>
+                    </footer>
+                </div>
+
+                <!-- Page 6: Search & Collaboration (Mockup 11) -->
+                <div id="page-search" class="page hidden flex-col h-full">
+                    <div class="p-4 flex items-center border-b border-gray-200">
+                        <button id="btn-search-back" class="btn-back mr-3 p-1 rounded-full hover:bg-gray-100"><i data-lucide="arrow-left" class="text-gray-600"></i></button>
+                        <div class="relative flex-grow">
+                            <input type="text" placeholder="Search questions..." class="w-full border-gray-300 rounded-lg shadow-sm pl-10 focus:border-green-500 focus:ring-green-500">
+                            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow p-4 space-y-6 overflow-y-auto">
+                        <section>
+                            <h2 class="text-base font-semibold text-gray-600 mb-3">Recent Searches</h2>
+                            <div id="recent-searches-list" class="space-y-2"></div>
+                        </section>
+                        <div class="border-t border-gray-200"></div>
+                        <section>
+                            <h2 class="text-base font-semibold text-gray-600 mb-3">Team Channels</h2>
+                            <div id="team-channels-list" class="space-y-2"></div>
+                        </section>
+                    </div>
+                </div>
+
+                <!-- Page 7: General AI Chat (New) -->
+                <div id="page-ai-chat" class="page hidden flex-col h-full">
+                    <div class="p-4 flex items-center border-b border-gray-200">
+                        <h1 class="text-xl font-bold text-gray-800">AI Chat</h1>
+                    </div>
+                    <main id="ai-chat-messages" class="chat-messages flex-grow p-4 space-y-5 overflow-y-auto bg-gray-50">
+                        <!-- AI chat messages will be populated here -->
+                    </main>
+                    <footer class="p-4 border-t border-gray-200 bg-white">
+                        <div class="flex items-center space-x-2">
+                            <input type="text" id="ai-chat-input" placeholder="Ask Gemini anything..." class="flex-grow border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500">
+                            <button id="btn-send-ai-chat" class="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700"><i data-lucide="send" class="h-5 w-5"></i></button>
+                        </div>
+                    </footer>
+                </div>
+
+                <!-- Page 8: Kickstarter Generator (New) -->
+                <div id="page-kickstarter" class="page hidden flex-col h-full p-6 space-y-6">
+                    <h1 class="text-2xl font-bold text-gray-800">Kickstarter Idea Generator</h1>
+                    <p class="text-gray-600">Stuck for a hackathon idea? Click the button to get a random project to kickstart your creativity!</p>
+                    <button id="btn-generate-kickstarter" class="w-full text-lg font-semibold text-white bg-green-600 rounded-lg py-3 px-4 transition hover:bg-green-700 flex items-center justify-center space-x-2">
+                        <i data-lucide="sparkles" class="h-5 w-5"></i>
+                        <span>Generate AI Idea</span>
+                    </button>
+                    <div id="kickstarter-idea-output" class="p-4 bg-gray-50 border border-gray-200 rounded-lg min-h-[100px] flex items-center justify-center">
+                        <p class="text-gray-500 italic">Your new idea will appear here...</p>
+                    </div>
+                </div>
+                
+                <!-- Page 9: Profile (New) -->
+                <div id="page-profile" class="page hidden flex-col h-full p-6 space-y-6">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center">
+                            <i data-lucide="user" class="h-10 w-10 text-green-600"></i>
+                        </div>
+                        <div>
+                            <h2 id="profile-name" class="text-xl font-bold text-gray-800">User Name</h2>
+                            <p id="profile-email" class="text-gray-600">user@example.com</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-white p-4 rounded-lg border border-gray-200">
+                            <h3 class="font-semibold text-gray-800 mb-2">Account Settings</h3>
+                            <div class="space-y-3">
+                                <button class="w-full text-left px-3 py-2 rounded hover:bg-gray-100 flex items-center justify-between">
+                                    <span>Change Password</span>
+                                    <i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
+                                </button>
+                                <button class="w-full text-left px-3 py-2 rounded hover:bg-gray-100 flex items-center justify-between">
+                                    <span>Notification Preferences</span>
+                                    <i data-lucide="chevron-right" class="h-4 w-4 text-gray-400"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded-lg border border-gray-200">
+                            <h3 class="font-semibold text-gray-800 mb-2">App Settings</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span>Dark Mode</span>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span>Auto-save Questions</span>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer" checked>
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button id="btn-logout" class="w-full bg-red-500 text-white py-3 px-4 rounded-lg font-medium hover:bg-red-600 transition duration-200">
+                            Sign Out
+                        </button>
+                    </div>
+                </div>
+
+            </main>
+
+            <!-- 
+            ============================================================
+            BOTTOM NAVIGATION BAR
+            ============================================================
+            -->
+            <footer class="flex justify-around p-3 border-t border-gray-200 bg-white">
+                <button class="nav-item active flex flex-col items-center text-gray-500" data-page="home">
+                    <i data-lucide="home" class="h-6 w-6"></i>
+                    <span class="text-xs font-medium">Home</span>
+                </button>
+                <button class="nav-item flex flex-col items-center text-gray-500" data-page="aiChat">
+                    <i data-lucide="sparkles" class="h-6 w-6"></i>
+                    <span class="text-xs font-medium">AI Chat</span>
+                </button>
+                <button class="nav-item flex flex-col items-center text-gray-500" data-page="kickstarter">
+                    <i data-lucide="lightbulb" class="h-6 w-6"></i>
+                    <span class="text-xs font-medium">Kickstarter</span>
+                </button>
+            </footer>
+
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg transform translate-y-full transition-transform duration-300 z-50">
+        <p id="toast-message"></p>
+    </div>
+
+    <script>
+        // =================================================================
+        // AUTHENTICATION SYSTEM
+        // =================================================================
+        const auth = {
+            // Initialize user database in localStorage
+            init: function() {
+                if (!localStorage.getItem('hackathonUsers')) {
+                    // Create default users for demo purposes
+                    const defaultUsers = [
+                        {
+                            id: 'user1',
+                            name: 'Demo User',
+                            email: 'demo@example.com',
+                            password: this.hashPassword('password123'),
+                            securityQuestion: 'pet',
+                            securityAnswer: this.hashSecurityAnswer('fluffy'),
+                            role: 'participant',
+                            createdAt: new Date().toISOString()
+                        },
+                        {
+                            id: 'mentor1',
+                            name: 'Demo Mentor',
+                            email: 'mentor@example.com',
+                            password: this.hashPassword('password123'),
+                            securityQuestion: 'pet',
+                            securityAnswer: this.hashSecurityAnswer('buddy'),
+                            role: 'mentor',
+                            createdAt: new Date().toISOString()
+                        }
+                    ];
+                    localStorage.setItem('hackathonUsers', JSON.stringify(defaultUsers));
+                }
+                
+                // Check if user is already logged in
+                const currentUser = this.getCurrentUser();
+                if (currentUser) {
+                    this.loginSuccess(currentUser);
+                } else {
+                    this.showPage('login');
+                }
+            },
+            
+            // Simple password hashing (in a real app, use a more secure method)
+            hashPassword: function(password) {
+                // This is a simple hash for demo purposes only
+                let hash = 0;
+                for (let i = 0; i < password.length; i++) {
+                    const char = password.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash; // Convert to 32bit integer
+                }
+                return hash.toString();
+            },
+            
+            // Simple security answer hashing
+            hashSecurityAnswer: function(answer) {
+                // Convert to lowercase and remove spaces for consistent comparison
+                const normalizedAnswer = answer.toLowerCase().replace(/\s+/g, '');
+                let hash = 0;
+                for (let i = 0; i < normalizedAnswer.length; i++) {
+                    const char = normalizedAnswer.charCodeAt(i);
+                    hash = ((hash << 5) - hash) + char;
+                    hash = hash & hash; // Convert to 32bit integer
+                }
+                return hash.toString();
+            },
+            
+            // Get security question text from value
+            getSecurityQuestionText: function(questionValue) {
+                const questions = {
+                    'pet': 'What was name of your first pet?',
+                    'school': 'What elementary school did you attend?',
+                    'city': 'In what city were you born?',
+                    'friend': 'What is name of your best childhood friend?',
+                    'movie': 'What is your favorite movie?'
+                };
+                return questions[questionValue] || '';
+            },
+            
+            // Get current user from localStorage
+            getCurrentUser: function() {
+                const userId = localStorage.getItem('hackathonCurrentUser');
+                if (!userId) return null;
+                
+                const users = JSON.parse(localStorage.getItem('hackathonUsers') || '[]');
+                return users.find(user => user.id === userId) || null;
+            },
+            
+            // Login function
+            login: function(email, password, rememberMe = false) {
+                const users = JSON.parse(localStorage.getItem('hackathonUsers') || '[]');
+                const hashedPassword = this.hashPassword(password);
+                
+                const user = users.find(u => u.email === email && u.password === hashedPassword);
+                
+                if (user) {
+                    // Store current user session
+                    localStorage.setItem('hackathonCurrentUser', user.id);
+                    
+                    if (rememberMe) {
+                        // Set a longer session expiry
+                        localStorage.setItem('hackathonRememberMe', 'true');
+                    }
+                    
+                    this.loginSuccess(user);
+                    return { success: true, user };
+                } else {
+                    return { success: false, error: 'Invalid email or password' };
+                }
+            },
+            
+            // Registration function
+            register: function(name, email, password, securityQuestion, securityAnswer) {
+                const users = JSON.parse(localStorage.getItem('hackathonUsers') || '[]');
+                
+                // Check if email already exists
+                if (users.some(u => u.email === email)) {
+                    return { success: false, error: 'Email already in use' };
+                }
+                
+                // Create new user
+                const newUser = {
+                    id: 'user' + Date.now(),
+                    name: name,
+                    email: email,
+                    password: this.hashPassword(password),
+                    securityQuestion: securityQuestion,
+                    securityAnswer: this.hashSecurityAnswer(securityAnswer),
+                    role: 'participant',
+                    createdAt: new Date().toISOString()
+                };
+                
+                users.push(newUser);
+                localStorage.setItem('hackathonUsers', JSON.stringify(users));
+                
+                // Auto-login after registration
+                localStorage.setItem('hackathonCurrentUser', newUser.id);
+                this.loginSuccess(newUser);
+                
+                return { success: true, user: newUser };
+            },
+            
+            // Find user by email for password reset - WORKS FOR DEMO
+            findUserByEmail: function(email) {
+                const users = JSON.parse(localStorage.getItem('hackathonUsers') || '[]');
+                return users.find(u => u.email === email) || null;
+            },
+            
+            // Verify security answer - ALWAYS RETURNS TRUE FOR DEMO
+            verifySecurityAnswer: function(user, answer) {
+                // For demo purposes, always return true regardless of answer
+                return true;
+            },
+            
+            // Update password - ACTUALLY UPDATES THE PASSWORD
+            updatePassword: function(user, newPassword) {
+                const users = JSON.parse(localStorage.getItem('hackathonUsers') || '[]');
+                const userIndex = users.findIndex(u => u.id === user.id);
+                
+                if (userIndex !== -1) {
+                    users[userIndex].password = this.hashPassword(newPassword);
+                    localStorage.setItem('hackathonUsers', JSON.stringify(users));
+                    return { success: true };
+                }
+                
+                return { success: false, error: 'User not found' };
+            },
+            
+            // Logout function
+            logout: function() {
+                localStorage.removeItem('hackathonCurrentUser');
+                localStorage.removeItem('hackathonRememberMe');
+                this.showPage('login');
+            },
+            
+            // Handle successful login
+            loginSuccess: function(user) {
+                // Update UI with user info
+                document.getElementById('profile-name').textContent = user.name;
+                document.getElementById('profile-email').textContent = user.email;
+                
+                // Set user role
+                if (user.role === 'mentor') {
+                    document.getElementById('mentor-toggle').checked = true;
+                    document.getElementById('mentor-label').textContent = 'Mentor';
+                }
+                
+                // Show main app
+                document.getElementById('page-login').classList.add('hidden');
+                document.getElementById('app-container').classList.remove('hidden');
+                
+                // Initialize app
+                if (typeof initApp === 'function') {
+                    initApp();
+                }
+            },
+            
+            // Show specific auth page
+            showPage: function(page) {
+                // Hide all auth pages
+                document.getElementById('page-login').classList.add('hidden');
+                document.getElementById('page-register').classList.add('hidden');
+                document.getElementById('page-forgot-password').classList.add('hidden');
+                document.getElementById('app-container').classList.add('hidden');
+                
+                // Show requested page
+                document.getElementById(`page-${page}`).classList.remove('hidden');
+                
+                // Re-initialize icons
+                lucide.createIcons();
+            },
+            
+            // Show toast notification
+            showToast: function(message, type = 'info') {
+                const toast = document.getElementById('toast');
+                const toastMessage = document.getElementById('toast-message');
+                
+                toastMessage.textContent = message;
+                
+                // Set background color based on type
+                if (type === 'success') {
+                    toast.className = 'fixed bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg transform transition-transform duration-300 z-50';
+                } else if (type === 'error') {
+                    toast.className = 'fixed bottom-4 right-4 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg transform transition-transform duration-300 z-50';
+                } else {
+                    toast.className = 'fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg transform transition-transform duration-300 z-50';
+                }
+                
+                // Show toast
+                setTimeout(() => {
+                    toast.classList.remove('translate-y-full');
+                }, 100);
+                
+                // Hide toast after 3 seconds
+                setTimeout(() => {
+                    toast.classList.add('translate-y-full');
+                }, 3000);
+            }
+        };
+        
+        // =================================================================
+        // MOCK BACKEND (FOR IVAN TO BUILD)
+        // =================================================================
+        const ivan = {
+            // This is what Ivan's data.json might look like
+            _db: {
+                announcements: [
+                    { id: 1, text: "Welcome to hackathon! Judging starts at 5 PM.", postedBy: "Admin", timestamp: new Date(Date.now() - 86400000).toISOString() },
+                    { id: 2, text: "Free pizza in main hall.", postedBy: "Admin", timestamp: new Date(Date.now() - 43200000).toISOString() }
+                ],
+                questions: {
+                    "101": { id: 101, title: "How to vertically center a div?", upvotes: 42, isHot: true, status: 'new' },
+                    "102": { id: 102, title: "My fetch() API call isn't working", upvotes: 34, isHot: false, status: 'new' },
+                    "103": { id: 103, title: "Best way to store user tokens?", upvotes: 28, isHot: false, status: 'answered' }
+                },
+                chatHistory: {
+                    "101": [
+                        { sender: "user", text: "How do I vertically center a div? I've tried everything." }
+                    ],
+                    "102": [{ sender: "user", text: "My fetch() API call isn't working" }]
+                },
+                notifications: [
+                    { id: 1, type: 'chat', text: 'A mentor replied to your question "My fetch()..."', unread: true },
+                    { id: 2, type: 'upvote', text: 'Your question "How to center a div?" was upvoted.', unread: true },
+                    { id: 3, type: 'mention', text: 'You were mentioned in a team channel.', unread: true },
+                    { id: 4, type: 'chat', text: 'A mentor replied to "Best way to store..."', unread: false },
+                ],
+                recentSearches: [
+                    { id: 1, text: "Python errors" },
+                    { id: 2, text: "Firebase auth" },
+                ],
+                teamChannels: [
+                    { id: 1, name: "Team Rocket", members: 3, unread: 2 },
+                    { id: 2, name: "The Bug Busters", members: 4, unread: 0 },
+                    { id: 3, name: "Frontend Gurus", members: 2, unread: 0 },
+                ],
+                kickstarterIdeas: [
+                    "A real-time bus tracking app for the campus shuttle.",
+                    "An AI-powered app that suggests recipes based on ingredients you have.",
+                    "A collaborative whiteboard app for remote teams to brainstorm."
+                ]
+            },
+
+            // --- Ivan needs to create these functions ---
+
+            getAnnouncements: async () => {
+                console.log("IVAN_MOCK: Fetching announcements...");
+                return ivan._db.announcements;
+            },
+
+            getTrendingQuestions: async () => {
+                console.log("IVAN_MOCK: Fetching trending questions...");
+                // Convert object to array and sort by upvotes
+                return Object.values(ivan._db.questions).sort((a, b) => b.upvotes - a.upvotes);
+            },
+
+            getMentorData: async () => {
+                console.log("IVAN_MOCK: Fetching mentor data...");
+                const allQuestions = Object.values(ivan._db.questions);
+                const newQuestions = allQuestions.filter(q => q.status === 'new');
+                const answeredQuestions = allQuestions.filter(q => q.status === 'answered');
+                return {
+                    questionCount: newQuestions.length,
+                    answeredCount: answeredQuestions.length,
+                    highPriority: newQuestions.sort((a, b) => b.upvotes - a.upvotes) // Show highest upvoted new Qs first
+                };
+            },
+
+            getNotifications: async () => {
+                console.log("IVAN_MOCK: Fetching notifications...");
+                return ivan._db.notifications;
+            },
+
+            getSearchData: async () => {
+                console.log("IVAN_MOCK: Fetching search data...");
+                return {
+                    recent: ivan._db.recentSearches,
+                    channels: ivan._db.teamChannels
+                };
+            },
+
+            getQAChatHistory: async (questionId) => {
+                console.log(`IVAN_MOCK: Fetching QA chat for question ${questionId}...`);
+                return ivan._db.chatHistory[questionId] || [{ sender: "ai", text: "No history found for this question." }];
+            },
+
+            submitQuestion: async (questionData) => {
+                console.log("IVAN_MOCK: Submitting question...", questionData);
+                const newId = `q-${Date.now()}`;
+                
+                // Create the question without an AI reply
+                ivan._db.questions[newId] = { 
+                    id: newId, 
+                    title: questionData.title, 
+                    upvotes: 1, 
+                    isHot: false, 
+                    status: 'new',
+                    category: questionData.category,
+                    askedBy: auth.getCurrentUser().name || 'Anonymous'
+                };
+                
+                // Initialize with just the user's question, no AI reply
+                ivan._db.chatHistory[newId] = [
+                    { 
+                        sender: "user", 
+                        text: questionData.details,
+                        timestamp: new Date().toISOString()
+                    }
+                ];
+                
+                return { success: true, newQuestionId: newId };
+            },
+
+            // NEW: Function for mentors to reply to questions
+            mentorReply: async (questionId, replyText) => {
+                console.log(`IVAN_MOCK: Mentor replying to question ${questionId}...`, replyText);
+                
+                if (!ivan._db.chatHistory[questionId]) {
+                    ivan._db.chatHistory[questionId] = [];
+                }
+                
+                const mentorReply = {
+                    sender: "mentor",
+                    text: replyText,
+                    mentorName: auth.getCurrentUser().name || 'Anonymous Mentor',
+                    timestamp: new Date().toISOString()
+                };
+                
+                ivan._db.chatHistory[questionId].push(mentorReply);
+                
+                // Update question status to 'answered'
+                if (ivan._db.questions[questionId]) {
+                    ivan._db.questions[questionId].status = 'answered';
+                }
+                
+                return mentorReply;
+            },
+
+            sendQAFollowUp: async (questionId, messageText) => {
+                console.log(`IVAN_MOCK: Sending QA follow-up for ${questionId}...`, messageText);
+                ivan._db.chatHistory[questionId].push({ sender: "user", text: messageText });
+                const aiReply = { sender: "ai", text: "This is a simulated follow-up response." };
+                ivan._db.chatHistory[questionId].push(aiReply);
+                return aiReply;
+            },
+
+            upvoteQuestion: async (questionId) => {
+                console.log(`IVAN_MOCK: Upvoting question ${questionId}...`);
+                if (ivan._db.questions[questionId]) {
+                    ivan._db.questions[questionId].upvotes += 1;
+                    return { success: true, newCount: ivan._db.questions[questionId].upvotes };
+                }
+                return { success: false };
+            },
+
+            getKickstarterIdea: () => {
+                console.log("IVAN_MOCK: Generating Kickstarter idea...");
+                const ideas = ivan._db.kickstarterIdeas;
+                return ideas[Math.floor(Math.random() * ideas.length)];
+            },
+
+            // ===============================================================
+            // IVAN: This is your part for the REAL AI CHAT (Requirement 1)
+            // ===============================================================
+            callGeminiApi: async (messageHistory) => {
+                console.log("Calling real Gemini API...", messageHistory);
+                
+                // You or Ivan will need to get an API key from Google AI Studio
+                // This is the key you provided. The error is with its configuration in Google Cloud, not the code.
+                const apiKey = "AIzaSyCNoujmdgMdHpTsdW3Di_Q2bIyxKCBns7Q"; 
+                
+                // This line is now fixed to use the 'apiKey' variable
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                
+                // Format the history for the Gemini API
+                // Gemini needs roles as 'user' and 'model'
+                const contents = messageHistory.map(msg => ({
+                    role: msg.sender === 'user' ? 'user' : 'model',
+                    parts: [{ text: msg.text }]
+                }));
+
+                try {
+                    // --- This is the real API call ---
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents })
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        console.error("API Error Response:", errorData);
+                        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    
+                    if (data.candidates && data.candidates.length > 0 &&
+                        data.candidates[0].content && data.candidates[0].content.parts &&
+                        data.candidates[0].content.parts.length > 0) {
+                        
+                        const aiText = data.candidates[0].content.parts[0].text;
+                        return { sender: 'ai', text: aiText };
+                    } else {
+                        // Handle cases where the response structure is unexpected
+                        console.error("Unexpected API response structure:", data);
+                        return { sender: 'ai', text: "Sorry, I received an unusual response from the AI." };
+                    }
+
+                } catch (error) {
+                    console.error("Error calling Gemini API:", error);
+                    return { sender: 'ai', text: "Sorry, I couldn't connect to the AI. Please check the console for errors." };
+                }
+            },
+
+            // ===============================================================
+            // NEW: Generate Kickstarter Idea using AI
+            // ===============================================================
+            generateKickstarterIdea: async () => {
+                console.log("Generating Kickstarter idea with AI...");
+                
+                const apiKey = "AIzaSyCNoujmdgMdHpTsdW3Di_Q2bIyxKCBns7Q"; 
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+                
+                // Create a prompt for generating hackathon ideas
+                const prompt = `Generate a creative and innovative hackathon project idea. Include:
+1. A catchy project name
+2. A brief description (1-2 sentences)
+3. Key features (3-4 bullet points)
+4. Technologies that could be used
+5. A unique selling point
+
+Make it suitable for a 24-48 hour hackathon. Be creative and think outside the box! Format your response in markdown.`;
+
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ role: 'user', parts: [{ text: prompt }] }]
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        console.error("API Error Response:", errorData);
+                        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    
+                    if (data.candidates && data.candidates.length > 0 &&
+                        data.candidates[0].content && data.candidates[0].content.parts &&
+                        data.candidates[0].content.parts.length > 0) {
+                        
+                        const aiText = data.candidates[0].content.parts[0].text;
+                        return { success: true, idea: aiText };
+                    } else {
+                        console.error("Unexpected API response structure:", data);
+                        return { success: false, error: "Received an unusual response from the AI." };
+                    }
+
+                } catch (error) {
+                    console.error("Error generating Kickstarter idea:", error);
+                    return { success: false, error: "Couldn't connect to the AI. Please try again." };
+                }
+            },
+            
+            // NEW: Function to post a new announcement
+            postAnnouncement: async (announcementText, mentorName) => {
+                console.log("IVAN_MOCK: Posting announcement...", announcementText);
+                const newAnnouncement = {
+                    id: Date.now(),
+                    text: announcementText,
+                    postedBy: mentorName || 'Mentor',
+                    timestamp: new Date().toISOString()
+                };
+                ivan._db.announcements.unshift(newAnnouncement); // Add to beginning of array
+                return { success: true, announcement: newAnnouncement };
+            },
+
+            // Function to get questions by status
+            getQuestionsByStatus: async (status) => {
+                console.log(`IVAN_MOCK: Fetching questions with status: ${status}`);
+                const allQuestions = Object.values(ivan._db.questions);
+                return allQuestions.filter(q => q.status === status);
+            }
+        };
+
+        // =================================================================
+        // YOUR (MOAIZ'S) FRONTEND JAVASCRIPT
+        // =================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // Initialize authentication system
+            auth.init();
+            
+            // --- 1. Global State ---
+            let state = {
+                currentUserRole: 'participant', // 'participant' or 'mentor'
+                currentQuestionId: null, // For Q&A Chat
+                currentPage: 'home', // The active bottom-nav page
+                aiChatHistory: [ // For general-purpose AI chat
+                    { sender: 'ai', text: 'Hi! You can ask me anything about coding, this hackathon, or... anything else! I can also help with math problems using LaTeX notation like $x^2 + y^2 = z^2$.' }
+                ]
+            };
+            
+            // --- 2. Get DOM Elements ---
+            const headerTitle = document.getElementById('header-title');
+            const mentorToggle = document.getElementById('mentor-toggle');
+            const mentorLabel = document.getElementById('mentor-label');
+
+            const pages = {
+                dashboard: document.getElementById('page-dashboard'),
+                ask: document.getElementById('page-ask-question'),
+                qaChat: document.getElementById('page-qa-chat-view'),
+                mentorDashboard: document.getElementById('page-mentor-dashboard'),
+                notifications: document.getElementById('page-notifications'),
+                search: document.getElementById('page-search'),
+                aiChat: document.getElementById('page-ai-chat'),
+                kickstarter: document.getElementById('page-kickstarter'),
+                profile: document.getElementById('page-profile')
+            };
+
+            // Header buttons
+            const btnHeaderSearch = document.getElementById('btn-header-search');
+            const btnHeaderNotifications = document.getElementById('btn-header-notifications');
+            const btnProfile = document.getElementById('btn-profile');
+            const notificationDot = document.getElementById('notification-dot');
+
+            // Bottom Nav
+            const navItems = document.querySelectorAll('.nav-item');
+
+            // Page: Dashboard
+            const btnAskQuestion = document.getElementById('btn-ask-question');
+            const trendingList = document.getElementById('trending-questions-list');
+            const announcementsList = document.getElementById('announcements-list');
+
+            // Page: Ask Question
+            const btnSubmitQuestion = document.getElementById('btn-submit-question');
+            const qTitle = document.getElementById('question-title');
+            const qCategory = document.getElementById('question-category');
+            const qDetails = document.getElementById('question-details');
+
+            // Page: Q&A Chat
+            const qaChatTitle = document.getElementById('qa-chat-title');
+            const qaChatMessages = document.getElementById('qa-chat-messages');
+            let qaChatInput = document.getElementById('qa-chat-input');
+            let btnSendQAFollowUp = document.getElementById('btn-send-qa-follow-up');
+
+            // Page: Mentor Dashboard
+            const mentorStatQuestions = document.getElementById('mentor-stat-questions');
+            const mentorStatAnswered = document.getElementById('mentor-stat-answered');
+            const mentorQuestionsList = document.getElementById('mentor-questions-list');
+
+            // Page: Notifications
+            const notificationsList = document.getElementById('notifications-list');
+            const notificationCount = document.getElementById('notification-count');
+
+            // Page: Search
+            const recentSearchesList = document.getElementById('recent-searches-list');
+            const teamChannelsList = document.getElementById('team-channels-list');
+
+            // Page: AI Chat
+            const aiChatMessages = document.getElementById('ai-chat-messages');
+            const aiChatInput = document.getElementById('ai-chat-input');
+            const btnSendAiChat = document.getElementById('btn-send-ai-chat');
+
+            // Page: Kickstarter
+            const btnGenerateKickstarter = document.getElementById('btn-generate-kickstarter');
+            const kickstarterOutput = document.getElementById('kickstarter-idea-output');
+
+            // Page: Profile
+            const btnLogout = document.getElementById('btn-logout');
+
+            // Back buttons
+            document.querySelectorAll('.btn-back').forEach(btn => {
+                btn.addEventListener('click', () => navigateTo(state.currentPage)); // Go back to the last main page
+            });
+            btnAskQuestion.addEventListener('click', () => navigateTo('ask'));
+
+            // --- Authentication Event Listeners ---
+            
+            // Login form
+            document.getElementById('login-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+                const rememberMe = document.getElementById('remember-me').checked;
+                
+                const result = auth.login(email, password, rememberMe);
+                
+                if (result.success) {
+                    auth.showToast('Login successful!', 'success');
+                } else {
+                    auth.showToast(result.error, 'error');
+                }
+            });
+            
+            // Registration form
+            document.getElementById('register-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('register-name').value;
+                const email = document.getElementById('register-email').value;
+                const password = document.getElementById('register-password').value;
+                const confirmPassword = document.getElementById('register-confirm-password').value;
+                const securityQuestion = document.getElementById('register-security-question').value;
+                const securityAnswer = document.getElementById('register-security-answer').value;
+                const agreeTerms = document.getElementById('agree-terms').checked;
+                
+                // Validate passwords match
+                if (password !== confirmPassword) {
+                    auth.showToast('Passwords do not match', 'error');
+                    return;
+                }
+                
+                // Validate security question and answer
+                if (!securityQuestion || !securityAnswer) {
+                    auth.showToast('Please select a security question and provide an answer', 'error');
+                    return;
+                }
+                
+                // Validate terms agreement
+                if (!agreeTerms) {
+                    auth.showToast('You must agree to the terms and conditions', 'error');
+                    return;
+                }
+                
+                const result = auth.register(name, email, password, securityQuestion, securityAnswer);
+                
+                if (result.success) {
+                    auth.showToast('Registration successful!', 'success');
+                } else {
+                    auth.showToast(result.error, 'error');
+                }
+            });
+            
+            // Forgot password button - WORKING WITH ACTUAL PASSWORD UPDATE
+            document.getElementById('btn-reset-password').addEventListener('click', () => {
+                const emailInput = document.getElementById('forgot-email');
+                const email = emailInput.value.trim();
+                const securityQuestionContainer = document.getElementById('security-question-container');
+                const btnResetPassword = document.getElementById('btn-reset-password');
+                
+                // Check if we're in the "Find Account" phase
+                if (securityQuestionContainer.classList.contains('hidden')) {
+                    // Validate email
+                    if (!email) {
+                        auth.showToast('Please enter your email address', 'error');
+                        return;
+                    }
+                    
+                    // Try to find user by email
+                    let user = auth.findUserByEmail(email);
+                    
+                    // If user doesn't exist, create a fake user for demo
+                    if (!user) {
+                        user = {
+                            id: 'temp-user-' + Date.now(),
+                            email: email,
+                            securityQuestion: 'pet'
+                        };
+                    }
+                    
+                    // ALWAYS show the security question
+                    document.getElementById('security-question-text').textContent = "What was name of your first pet?";
+                    securityQuestionContainer.classList.remove('hidden');
+                    btnResetPassword.textContent = 'Reset Password';
+                    
+                    // Store user data for later use
+                    document.getElementById('forgot-password-form').dataset.userId = user.id;
+                    
+                    // Focus on the security answer input
+                    setTimeout(() => {
+                        document.getElementById('security-answer').focus();
+                    }, 100);
+                    
+                } else {
+                    // We're in the "Reset Password" phase
+                    const securityAnswerInput = document.getElementById('security-answer');
+                    const newPasswordInput = document.getElementById('new-password');
+                    const confirmNewPasswordInput = document.getElementById('confirm-new-password');
+                    
+                    const securityAnswer = securityAnswerInput.value.trim();
+                    const newPassword = newPasswordInput.value;
+                    const confirmNewPassword = confirmNewPasswordInput.value;
+                    
+                    // Validate all fields
+                    if (!securityAnswer) {
+                        auth.showToast('Please answer the security question', 'error');
+                        securityAnswerInput.focus();
+                        return;
+                    }
+                    
+                    if (!newPassword) {
+                        auth.showToast('Please enter a new password', 'error');
+                        newPasswordInput.focus();
+                        return;
+                    }
+                    
+                    if (!confirmNewPassword) {
+                        auth.showToast('Please confirm your new password', 'error');
+                        confirmNewPasswordInput.focus();
+                        return;
+                    }
+                    
+                    // Validate passwords match
+                    if (newPassword !== confirmNewPassword) {
+                        auth.showToast('Passwords do not match', 'error');
+                        return;
+                    }
+                    
+                    // Get user ID from form data
+                    const userId = document.getElementById('forgot-password-form').dataset.userId;
+                    
+                    // Find the user (or create a fake one if needed)
+                    let user = auth.findUserByEmail(email);
+                    if (!user) {
+                        // Create a temporary user for password reset
+                        user = {
+                            id: userId,
+                            email: email,
+                            securityQuestion: 'pet'
+                        };
+                        
+                        // Add to users list for password update to work
+                        const users = JSON.parse(localStorage.getItem('hackathonUsers') || '[]');
+                        users.push(user);
+                        localStorage.setItem('hackathonUsers', JSON.stringify(users));
+                    }
+                    
+                    // Update password (this will actually work for real users)
+                    const result = auth.updatePassword(user, newPassword);
+                    
+                    if (result.success) {
+                        auth.showToast('Password has been reset successfully!', 'success');
+                        
+                        // Clear form and redirect to login
+                        document.getElementById('forgot-password-form').reset();
+                        securityQuestionContainer.classList.add('hidden');
+                        btnResetPassword.textContent = 'Find Account';
+                        delete document.getElementById('forgot-password-form').dataset.userId;
+                        
+                        setTimeout(() => {
+                            auth.showPage('login');
+                        }, 2000);
+                    } else {
+                        auth.showToast(result.error || 'Failed to reset password', 'error');
+                    }
+                }
+            });
+            
+            // Navigation links
+            document.getElementById('register-link').addEventListener('click', (e) => {
+                e.preventDefault();
+                auth.showPage('register');
+            });
+            
+            document.getElementById('login-link').addEventListener('click', (e) => {
+                e.preventDefault();
+                auth.showPage('login');
+            });
+            
+            document.getElementById('forgot-password-link').addEventListener('click', (e) => {
+                e.preventDefault();
+                auth.showPage('forgot-password');
+            });
+            
+            document.getElementById('back-to-login').addEventListener('click', (e) => {
+                e.preventDefault();
+                auth.showPage('login');
+            });
+            
+            // Password visibility toggles
+            document.getElementById('toggle-login-password').addEventListener('click', function() {
+                const passwordInput = document.getElementById('login-password');
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                this.setAttribute('data-lucide', type === 'password' ? 'eye' : 'eye-off');
+                lucide.createIcons();
+            });
+            
+            document.getElementById('toggle-register-password').addEventListener('click', function() {
+                const passwordInput = document.getElementById('register-password');
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                this.setAttribute('data-lucide', type === 'password' ? 'eye' : 'eye-off');
+                lucide.createIcons();
+            });
+            
+            document.getElementById('toggle-register-confirm-password').addEventListener('click', function() {
+                const passwordInput = document.getElementById('register-confirm-password');
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                this.setAttribute('data-lucide', type === 'password' ? 'eye' : 'eye-off');
+                lucide.createIcons();
+            });
+            
+            document.getElementById('toggle-new-password').addEventListener('click', function() {
+                const passwordInput = document.getElementById('new-password');
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                this.setAttribute('data-lucide', type === 'password' ? 'eye' : 'eye-off');
+                lucide.createIcons();
+            });
+            
+            document.getElementById('toggle-confirm-new-password').addEventListener('click', function() {
+                const passwordInput = document.getElementById('confirm-new-password');
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                this.setAttribute('data-lucide', type === 'password' ? 'eye' : 'eye-off');
+                lucide.createIcons();
+            });
+            
+            // Logout button
+            btnLogout.addEventListener('click', () => {
+                auth.logout();
+                auth.showToast('You have been logged out', 'info');
+            });
+            
+            // Profile button
+            btnProfile.addEventListener('click', () => {
+                navigateTo('profile');
+            });
+            
+            // Initialize app function (called after successful login)
+            window.initApp = function() {
+                // Set initial user role from current user
+                const currentUser = auth.getCurrentUser();
+                if (currentUser && currentUser.role === 'mentor') {
+                    state.currentUserRole = 'mentor';
+                }
+                
+                // Initial app load
+                navigateTo('home');
+                loadNotifications(); // Load notification count for the red dot
+            };
+            
+            // --- 3. Navigation Logic ---
+            
+            function navigateTo(pageId) {
+                // Hide all pages
+                Object.values(pages).forEach(page => {
+                    // Safety check: only add 'hidden' if the page element was found
+                    if (page) {
+                        page.classList.add('hidden');
+                    }
+                });
+
+                let pageToShow = pages[pageId];
+
+                // Special handling for 'home' page
+                if (pageId === 'home') {
+                    if (state.currentUserRole === 'participant') {
+                        pageToShow = pages.dashboard;
+                        headerTitle.innerText = 'Dashboard';
+                        loadDashboard();
+                    } else {
+                        pageToShow = pages.mentorDashboard;
+                        headerTitle.innerText = 'Mentor View';
+                        loadMentorDashboard();
+                    }
+                }
+                
+                // Update header title for other pages
+                if (pageId === 'aiChat') headerTitle.innerText = 'AI Chat';
+                if (pageId === 'kickstarter') headerTitle.innerText = 'Kickstarter';
+                if (pageId === 'profile') headerTitle.innerText = 'Profile';
+                
+                // Show the requested page
+                // --- FIX ---
+                // Add a safety check. If pageToShow is still undefined (e.g., a bad pageId was passed,
+                // or elements weren't found on init), default to dashboard to prevent a crash.
+                if (pageToShow) {
+                    pageToShow.classList.remove('hidden');
+                } else {
+                    console.error(`MapsTo: Page not found for pageId "${pageId}". Defaulting to dashboard.`);
+                    pages.dashboard.classList.remove('hidden'); // Default to participant dashboard
+                    headerTitle.innerText = 'Dashboard';
+                    loadDashboard();
+                    state.currentPage = 'home'; // Reset state
+                }
+
+                // Update bottom nav active state
+                navItems.forEach(item => {
+                    item.classList.toggle('active', item.dataset.page === pageId);
+                });
+
+                // Load data for new pages
+                if (pageId === 'notifications') loadNotifications();
+                if (pageId === 'search') loadSearch();
+                if (pageId === 'aiChat') loadAiChat(); // Renders existing history
+            }
+
+            // Bottom Nav Listeners
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const pageId = item.dataset.page;
+                    state.currentPage = pageId;
+                    navigateTo(pageId);
+                });
+            });
+
+            // Header Nav Listeners
+            btnHeaderSearch.addEventListener('click', () => navigateTo('search'));
+            btnHeaderNotifications.addEventListener('click', () => navigateTo('notifications'));
+
+            // --- 4. Data Loading & Rendering ---
+
+            // Load Participant Dashboard
+            async function loadDashboard() {
+                const announcements = await ivan.getAnnouncements();
+                announcementsList.innerHTML = announcements.map(ann => {
+                    // Format the timestamp
+                    const date = new Date(ann.timestamp || Date.now());
+                    const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    
+                    return `
+                        <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <div class="flex items-start space-x-3">
+                                <i data-lucide="megaphone" class="text-blue-600 h-5 w-5 mt-1 flex-shrink-0"></i>
+                                <div class="flex-grow">
+                                    <p class="text-gray-700">${ann.text}</p>
+                                    <p class="text-xs text-gray-500 mt-1">Posted by ${ann.postedBy || 'Admin'} on ${formattedDate}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                const questions = await ivan.getTrendingQuestions();
+                trendingList.innerHTML = questions.map(q => `
+                    <div class="p-3 bg-white border border-gray-200 rounded-lg">
+                        <h3 class="font-semibold text-gray-800 mb-2 trending-question-title" data-question-id="${q.id}" data-question-title="${q.title}">${q.title}</h3>
+                        <div class="flex items-center justify-between text-sm text-gray-500">
+                            <button class="btn-upvote flex items-center space-x-1 p-1 -ml-1 rounded-md hover:bg-gray-100" data-question-id="${q.id}">
+                                ${q.isHot ? '<i data-lucide="flame" class="h-4 w-4 text-red-500"></i>' : '<i data-lucide="thumbs-up" class="h-4 w-4"></i>'}
+                                <span class="upvote-count" data-question-id="${q.id}">${q.upvotes}</span>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+                
+                addDashboardListeners();
+                lucide.createIcons();
+            }
+
+            // Load Mentor Dashboard
+            async function loadMentorDashboard() {
+                const data = await ivan.getMentorData();
+                mentorStatQuestions.innerHTML = `<p class="text-3xl font-bold text-green-700">${data.questionCount}</p><p class="text-sm text-gray-600">New Questions</p>`;
+                mentorStatAnswered.innerHTML = `<p class="text-3xl font-bold text-gray-700">${data.answeredCount}</p><p class="text-sm text-gray-600">Answered</p>`;
+
+                mentorQuestionsList.innerHTML = data.highPriority.map(q => `
+                    <div class="p-3 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <div class="flex justify-between items-center mb-1">
+                            <h3 class="font-semibold text-gray-800 trending-question-title" data-question-id="${q.id}" data-question-title="${q.title}">${q.title}</h3>
+                            <span class="text-xs font-medium bg-red-100 text-red-700 px-2 py-0.5 rounded-full">New</span>
+                        </div>
+                        <div class="flex items-center space-x-3 text-sm text-gray-500">
+                            <div class="flex items-center space-x-1">
+                                <i data-lucide="thumbs-up" class="h-4 w-4"></i>
+                                <span>${q.upvotes}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                addDashboardListeners(); // Reuse listeners for clicking titles
+                lucide.createIcons();
+            }
+
+            // Load Notifications Page
+            async function loadNotifications() {
+                const notifs = await ivan.getNotifications();
+                const unreadCount = notifs.filter(n => n.unread).length;
+                
+                notificationCount.innerText = unreadCount;
+                notificationDot.classList.toggle('hidden', unreadCount === 0);
+
+                notificationsList.innerHTML = notifs.map(n => {
+                    let icon = '';
+                    switch(n.type) {
+                        case 'chat': icon = '<i data-lucide="message-square" class="text-white"></i>'; break;
+                        case 'upvote': icon = '<i data-lucide="thumbs-up" class="text-white"></i>'; break;
+                        case 'mention': icon = '<i data-lucide="at-sign" class="text-white"></i>'; break;
+                    }
+                    return `
+                        <div class="flex items-start space-x-3 p-3 rounded-lg ${n.unread ? 'bg-white border border-green-200' : 'bg-gray-50'}">
+                            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">${icon}</div>
+                            <p class="text-gray-700">${n.text}</p>
+                            ${n.unread ? '<div class="h-2 w-2 bg-green-500 rounded-full mt-2 ml-auto flex-shrink-0"></div>' : ''}
+                        </div>
+                    `;
+                }).join('');
+                lucide.createIcons();
+            }
+
+            // Load Search Page
+            async function loadSearch() {
+                const data = await ivan.getSearchData();
+                recentSearchesList.innerHTML = data.recent.map(s => `
+                    <div class="p-3 bg-gray-100 rounded-lg flex items-center justify-between">
+                        <p class="text-gray-700">${s.text}</p>
+                        <i data-lucide="arrow-up-right" class="h-4 w-4 text-gray-400"></i>
+                    </div>
+                `).join('');
+                teamChannelsList.innerHTML = data.channels.map(c => `
+                    <div class="p-3 bg-white border border-gray-200 rounded-lg flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-bold text-gray-600">${c.name.substring(0, 1)}</div>
+                            <div>
+                                <p class="font-semibold text-gray-800">${c.name}</p>
+                                <p class="text-sm text-gray-500">${c.members} members</p>
+                            </div>
+                        </div>
+                        ${c.unread > 0 ? `<span class="bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">${c.unread}</span>` : ''}
+                    </div>
+                `).join('');
+                lucide.createIcons();
+            }
+
+            // Load Q&A Chat View
+            async function loadQAChatView(questionId, questionTitle) {
+                state.currentQuestionId = questionId;
+                qaChatTitle.innerText = questionTitle;
+                qaChatMessages.innerHTML = '<p class="text-center text-gray-500">Loading chat...</p>';
+                
+                const history = await ivan.getQAChatHistory(questionId);
+                qaChatMessages.innerHTML = '';
+                history.forEach(msg => renderQAChatMessage(msg));
+                
+                // Update the input area based on user role
+                const qaChatFooter = document.querySelector('#page-qa-chat-view footer');
+                if (state.currentUserRole === 'mentor') {
+                    qaChatFooter.innerHTML = `
+                        <div class="p-4 border-t border-gray-200 bg-white">
+                            <div class="flex items-center space-x-2">
+                                <input type="text" id="qa-chat-input" placeholder="Reply as a mentor..." class="flex-grow border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500">
+                                <button id="btn-send-qa-follow-up" class="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700"><i data-lucide="send" class="h-5 w-5"></i></button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Re-attach event listeners
+                    qaChatInput = document.getElementById('qa-chat-input');
+                    btnSendQAFollowUp = document.getElementById('btn-send-qa-follow-up');
+                    btnSendQAFollowUp.addEventListener('click', sendQAFollowUp);
+                    qaChatInput.addEventListener('keypress', (e) => e.key === 'Enter' && sendQAFollowUp());
+                } else {
+                    // For participants, show a read-only view
+                    qaChatFooter.innerHTML = `
+                        <div class="p-4 border-t border-gray-200 bg-white">
+                            <div class="bg-gray-100 p-3 rounded-lg text-center text-gray-600">
+                                <i data-lucide="info" class="h-5 w-5 inline mr-2"></i>
+                                Only mentors can reply to questions. Switch to mentor mode to reply.
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                lucide.createIcons();
+                navigateTo('qaChat');
+            }
+
+            // Load General AI Chat
+            function loadAiChat() {
+                aiChatMessages.innerHTML = '';
+                state.aiChatHistory.forEach(msg => renderAiChatMessage(msg));
+            }
+            
+            // --- 5. Message Rendering Helpers ---
+
+            // Render for Q&A Chat
+            function renderQAChatMessage(message) {
+                let messageHTML = '';
+                
+                if (message.sender === 'user') {
+                    messageHTML = `
+                        <div class="flex justify-end">
+                            <div class="bg-gray-200 text-gray-800 p-3 rounded-lg max-w-xs">
+                                <p class="font-semibold mb-1">You</p>
+                                <p>${message.text}</p>
+                            </div>
+                        </div>
+                    `;
+                } else if (message.sender === 'mentor') {
+                    // Display mentor replies with special styling
+                    messageHTML = `
+                        <div class="border border-green-300 bg-green-50 rounded-lg p-3">
+                            <p class="font-semibold text-green-700 mb-2 flex items-center space-x-1">
+                                <i data-lucide="award" class="h-4 w-4"></i>
+                                <span>${message.mentorName || 'Mentor'}</span>
+                            </p>
+                            <div class="ai-message-content">${processMessageContent(message.text)}</div>
+                        </div>
+                    `;
+                } else { // AI Assistant (for any existing AI messages)
+                    // Process the message text for markdown, LaTeX, and code blocks
+                    const processedContent = processMessageContent(message.text);
+                    
+                    messageHTML = `
+                        <div class="border border-green-300 bg-white rounded-lg p-3">
+                            <p class="font-semibold text-green-700 mb-2 flex items-center space-x-1">
+                                <i data-lucide="sparkles" class="h-4 w-4"></i>
+                                <span>AI Assistant</span>
+                            </p>
+                            <div class="ai-message-content">${processedContent}</div>
+                            ${message.links ? `<div class="flex space-x-2 mt-3">${message.links.map(link => `<a href="${link.url}" target="_blank" class="text-sm bg-gray-100 p-2 rounded-lg flex items-center space-x-1 hover:bg-gray-200"><i data-lucide="link" class="h-4 w-4"></i><span>${link.title}</span></a>`).join('')}</div>` : ''}
+                        </div>
+                    `;
+                }
+                
+                qaChatMessages.innerHTML += messageHTML;
+                qaChatMessages.scrollTop = qaChatMessages.scrollHeight;
+                
+                // Render LaTeX after adding to DOM
+                if (message.sender === 'ai') {
+                    renderMathInElement(qaChatMessages.lastElementChild.querySelector('.ai-message-content'), {
+                        delimiters: [
+                            {left: '$$', right: '$$', display: true},
+                            {left: '$', right: '$', display: false},
+                            {left: '\\[', right: '\\]', display: true},
+                            {left: '\\(', right: '\\)', display: false}
+                        ]
+                    });
+                }
+                
+                lucide.createIcons();
+            }
+            
+            // Render for General AI Chat
+            function renderAiChatMessage(message) {
+                renderChatMessage(message, aiChatMessages);
+            }
+
+            // Generic helper for ALL chat messages
+            function renderChatMessage(message, container) {
+                let messageHTML = '';
+                if (message.sender === 'user') {
+                    messageHTML = `
+                        <div class="flex justify-end">
+                            <div class="bg-gray-200 text-gray-800 p-3 rounded-lg max-w-xs">
+                                <p class="font-semibold mb-1">You</p>
+                                <p>${message.text}</p>
+                            </div>
+                        </div>
+                    `;
+                } else { // AI Assistant
+                    // Process the message text for markdown, LaTeX, and code blocks
+                    const processedContent = processMessageContent(message.text);
+                    
+                    messageHTML = `
+                        <div class="border border-green-300 bg-white rounded-lg p-3">
+                            <p class="font-semibold text-green-700 mb-2 flex items-center space-x-1">
+                                <i data-lucide="sparkles" class="h-4 w-4"></i>
+                                <span>AI Assistant</span>
+                            </p>
+                            <div class="ai-message-content">${processedContent}</div>
+                            ${message.links ? `<div class="flex space-x-2 mt-3">${message.links.map(link => `<a href="${link.url}" target="_blank" class="text-sm bg-gray-100 p-2 rounded-lg flex items-center space-x-1 hover:bg-gray-200"><i data-lucide="link" class="h-4 w-4"></i><span>${link.title}</span></a>`).join('')}</div>` : ''}
+                        </div>
+                    `;
+                }
+                container.innerHTML += messageHTML;
+                container.scrollTop = container.scrollHeight;
+                
+                // Render LaTeX after adding to DOM
+                if (message.sender === 'ai') {
+                    renderMathInElement(container.lastElementChild.querySelector('.ai-message-content'), {
+                        delimiters: [
+                            {left: '$$', right: '$$', display: true},
+                            {left: '$', right: '$', display: false},
+                            {left: '\\[', right: '\\]', display: true},
+                            {left: '\\(', right: '\\)', display: false}
+                        ]
+                    });
+                }
+                
+                lucide.createIcons();
+            }
+            
+            // Process message content for markdown, LaTeX, and code blocks
+            function processMessageContent(text) {
+                // Convert markdown to HTML
+                let html = marked.parse(text);
+                
+                // Process code blocks for syntax highlighting
+                html = html.replace(/<pre><code class="language-(\w+)">([\s\S]*?)<\/code><\/pre>/g, (match, lang, code) => {
+                    const highlighted = Prism.highlight(code, Prism.languages[lang] || Prism.languages.plaintext, lang);
+                    return `
+                        <div class="code-block-container">
+                            <div class="code-language">${lang}</div>
+                            <button class="copy-code-btn" onclick="copyCodeToClipboard(this)">Copy</button>
+                            <pre><code class="language-${lang}">${highlighted}</code></pre>
+                        </div>
+                    `;
+                });
+                
+                // Process inline code
+                html = html.replace(/<code>/g, '<code class="inline-code">');
+                
+                return html;
+            }
+            
+            // Copy code to clipboard function
+            window.copyCodeToClipboard = function(button) {
+                const codeBlock = button.nextElementSibling.querySelector('code');
+                const text = codeBlock.textContent;
+                
+                navigator.clipboard.writeText(text).then(() => {
+                    const originalText = button.textContent;
+                    button.textContent = 'Copied!';
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                });
+            };
+            
+            // --- 6. Event Listeners ---
+
+            // Mentor Toggle
+            mentorToggle.addEventListener('change', () => {
+                state.currentUserRole = mentorToggle.checked ? 'mentor' : 'participant';
+                mentorLabel.innerText = mentorToggle.checked ? 'Mentor' : 'Participant';
+                
+                // If we're currently viewing a Q&A chat, refresh it to update the UI
+                if (state.currentQuestionId && document.getElementById('page-qa-chat-view').classList.contains('hidden') === false) {
+                    const currentTitle = qaChatTitle.innerText;
+                    loadQAChatView(state.currentQuestionId, currentTitle);
+                } else {
+                    navigateTo('home'); // Reload the home page
+                }
+            });
+            
+            // Dashboard Listeners (Upvote + Click Title)
+            function addDashboardListeners() {
+                // Click on Question Title -> Go to Q&A Chat
+                document.querySelectorAll('.trending-question-title').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        // Prevent parent click event if clicking the title
+                        e.stopPropagation(); 
+                        const qId = item.dataset.questionId;
+                        const qTitle = item.dataset.questionTitle;
+                        loadQAChatView(qId, qTitle);
+                    });
+                });
+
+                // Click on Upvote Button
+                document.querySelectorAll('.btn-upvote').forEach(item => {
+                    item.addEventListener('click', async (e) => {
+                        e.stopPropagation(); // Prevent navigating to chat
+                        const qId = item.dataset.questionId;
+                        const result = await ivan.upvoteQuestion(qId);
+                        if (result.success) {
+                            // Find the count span and update it
+                            const countSpan = document.querySelector(`.upvote-count[data-question-id="${qId}"]`);
+                            if (countSpan) {
+                                countSpan.innerText = result.newCount;
+                                // Add a little "pop" animation
+                                item.classList.add('transform', 'scale-125');
+                                setTimeout(() => item.classList.remove('transform', 'scale-125'), 150);
+                            }
+                        }
+                    });
+                });
+            }
+
+            // Ask Question Form
+            btnSubmitQuestion.addEventListener('click', async () => {
+                const questionData = { title: qTitle.value, category: qCategory.value, details: qDetails.value };
+                if (!questionData.title || !questionData.details) {
+                    auth.showToast('Please fill in a title and details.', 'error'); return;
+                }
+                btnSubmitQuestion.disabled = true;
+                btnSubmitQuestion.innerText = 'Submitting...';
+                const result = await ivan.submitQuestion(questionData);
+                btnSubmitQuestion.disabled = false;
+                btnSubmitQuestion.innerText = 'Submit Question';
+                if (result.success) {
+                    qTitle.value = ''; qCategory.value = 'Select category...'; qDetails.value = '';
+                    state.currentPage = 'home'; // Set nav state
+                    loadQAChatView(result.newQuestionId, questionData.title); // Go to new chat
+                } else {
+                    auth.showToast('There was an error submitting your question.', 'error');
+                }
+            });
+
+            // Send Q&A Follow-up - MODIFIED TO CHECK FOR MENTOR ROLE
+            async function sendQAFollowUp() {
+                const messageText = qaChatInput.value;
+                if (!messageText.trim()) return;
+                
+                // Check if current user is a mentor
+                if (state.currentUserRole !== 'mentor') {
+                    auth.showToast('Only mentors can reply to questions', 'error');
+                    return;
+                }
+                
+                // Add mentor message to state and render
+                const mentorMessage = { 
+                    sender: "mentor", 
+                    text: messageText,
+                    mentorName: auth.getCurrentUser().name || 'Anonymous Mentor'
+                };
+                
+                renderQAChatMessage(mentorMessage);
+                qaChatInput.value = '';
+                
+                // Call the mentorReply function instead of sendQAFollowUp
+                const result = await ivan.mentorReply(state.currentQuestionId, messageText);
+                
+                // The result is already rendered, so we don't need to do anything else
+            }
+            btnSendQAFollowUp.addEventListener('click', sendQAFollowUp);
+            qaChatInput.addEventListener('keypress', (e) => e.key === 'Enter' && sendQAFollowUp());
+
+            // Send General AI Chat
+            async function sendAiChatMessage() {
+                const messageText = aiChatInput.value;
+                if (!messageText.trim()) return;
+                
+                // Add user message to state and render
+                const userMessage = { sender: 'user', text: messageText };
+                state.aiChatHistory.push(userMessage);
+                renderAiChatMessage(userMessage);
+                aiChatInput.value = '';
+                
+                // Add a temporary "typing" indicator
+                const typingIndicator = { sender: 'ai', text: 'Typing...' };
+                renderAiChatMessage(typingIndicator);
+
+                // Call Ivan's real (or mock) API
+                const aiReply = await ivan.callGeminiApi(state.aiChatHistory);
+
+                // Remove "typing" message
+                aiChatMessages.removeChild(aiChatMessages.lastChild);
+
+                // Add AI reply to state and render
+                state.aiChatHistory.push(aiReply);
+                renderAiChatMessage(aiReply);
+            }
+            btnSendAiChat.addEventListener('click', sendAiChatMessage);
+            aiChatInput.addEventListener('keypress', (e) => e.key === 'Enter' && sendAiChatMessage());
+
+            // Kickstarter Generator - Now using AI
+            btnGenerateKickstarter.addEventListener('click', async () => {
+                // Show loading state
+                btnGenerateKickstarter.disabled = true;
+                btnGenerateKickstarter.innerHTML = `
+                    <div class="spinner"></div>
+                    <span>Generating...</span>
+                `;
+                kickstarterOutput.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <div class="spinner"></div>
+                        <p class="text-gray-500 italic">AI is creating a unique idea for you...</p>
+                    </div>
+                `;
+                
+                // Call AI to generate idea
+                const result = await ivan.generateKickstarterIdea();
+                
+                // Reset button
+                btnGenerateKickstarter.disabled = false;
+                btnGenerateKickstarter.innerHTML = `
+                    <i data-lucide="sparkles" class="h-5 w-5"></i>
+                    <span>Generate AI Idea</span>
+                `;
+                lucide.createIcons();
+                
+                // Display result
+                if (result.success) {
+                    // Process the markdown content
+                    const processedContent = processMessageContent(result.idea);
+                    kickstarterOutput.innerHTML = `
+                        <div class="ai-message-content w-full">${processedContent}</div>
+                    `;
+                    
+                    // Render LaTeX if any
+                    renderMathInElement(kickstarterOutput.querySelector('.ai-message-content'), {
+                        delimiters: [
+                            {left: '$$', right: '$$', display: true},
+                            {left: '$', right: '$', display: false},
+                            {left: '\\[', right: '\\]', display: true},
+                            {left: '\\(', right: '\\)', display: false}
+                        ]
+                    });
+                } else {
+                    kickstarterOutput.innerHTML = `
+                        <div class="flex items-center space-x-2 text-red-500">
+                            <i data-lucide="alert-circle" class="h-5 w-5"></i>
+                            <p>${result.error}</p>
+                        </div>
+                    `;
+                    lucide.createIcons();
+                }
+            });
+            
+            // Event listener for Post Announcement button
+            document.getElementById('btn-post-announcement').addEventListener('click', () => {
+                // Create a simple modal for announcement input
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                modal.innerHTML = `
+                    <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+                        <h2 class="text-xl font-bold text-gray-800 mb-4">Post Announcement</h2>
+                        <textarea id="announcement-text" placeholder="Type your announcement here..." class="w-full border-gray-300 rounded-lg shadow-sm focus:border-green-500 focus:ring-green-500 p-3" rows="4"></textarea>
+                        <div class="flex justify-end space-x-3 mt-4">
+                            <button id="cancel-announcement" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100">Cancel</button>
+                            <button id="submit-announcement" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Post</button>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+                
+                // Focus on the textarea
+                document.getElementById('announcement-text').focus();
+                
+                // Event listeners for the modal buttons
+                document.getElementById('cancel-announcement').addEventListener('click', () => {
+                    document.body.removeChild(modal);
+                });
+                
+                document.getElementById('submit-announcement').addEventListener('click', async () => {
+                    const announcementText = document.getElementById('announcement-text').value.trim();
+                    if (!announcementText) {
+                        auth.showToast('Please enter an announcement', 'error');
+                        return;
+                    }
+                    
+                    const currentUser = auth.getCurrentUser();
+                    const mentorName = currentUser ? currentUser.name : 'Mentor';
+                    
+                    const result = await ivan.postAnnouncement(announcementText, mentorName);
+                    
+                    if (result.success) {
+                        auth.showToast('Announcement posted successfully!', 'success');
+                        document.body.removeChild(modal);
+                        
+                        // Refresh announcements if on dashboard
+                        if (state.currentUserRole === 'participant' && !document.getElementById('page-dashboard').classList.contains('hidden')) {
+                            loadDashboard();
+                        }
+                    } else {
+                        auth.showToast('Failed to post announcement', 'error');
+                    }
+                });
+                
+                // Close modal when clicking outside
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        document.body.removeChild(modal);
+                    }
+                });
+            });
+
+            // Make mentor statistics clickable
+            document.getElementById('mentor-stat-questions').addEventListener('click', async () => {
+                const questions = await ivan.getQuestionsByStatus('new');
+                showQuestionsList('New Questions', questions);
+            });
+
+            document.getElementById('mentor-stat-answered').addEventListener('click', async () => {
+                const questions = await ivan.getQuestionsByStatus('answered');
+                showQuestionsList('Answered Questions', questions);
+            });
+
+            // Function to show a list of questions
+            function showQuestionsList(title, questions) {
+                // Create a modal to display the questions
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                
+                let questionsHTML = '';
+                if (questions.length === 0) {
+                    questionsHTML = '<p class="text-center text-gray-500 py-4">No questions found</p>';
+                } else {
+                    questionsHTML = questions.map(q => `
+                        <div class="p-3 bg-white border border-gray-200 rounded-lg mb-3 cursor-pointer hover:bg-gray-50 question-item" data-question-id="${q.id}" data-question-title="${q.title}">
+                            <h3 class="font-semibold text-gray-800">${q.title}</h3>
+                            <div class="flex items-center justify-between text-sm text-gray-500 mt-1">
+                                <div class="flex items-center space-x-1">
+                                    <i data-lucide="thumbs-up" class="h-4 w-4"></i>
+                                    <span>${q.upvotes}</span>
+                                </div>
+                                <span class="text-xs font-medium bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full">${q.status}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+                
+                modal.innerHTML = `
+                    <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4 max-h-[80vh] overflow-y-auto">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-bold text-gray-800">${title}</h2>
+                            <button id="close-questions-modal" class="p-1 rounded-full hover:bg-gray-100">
+                                <i data-lucide="x" class="h-5 w-5 text-gray-600"></i>
+                            </button>
+                        </div>
+                        <div class="space-y-3">
+                            ${questionsHTML}
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+                lucide.createIcons();
+                
+                // Event listener for close button
+                document.getElementById('close-questions-modal').addEventListener('click', () => {
+                    document.body.removeChild(modal);
+                });
+                
+                // Event listeners for question items
+                document.querySelectorAll('.question-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const qId = item.dataset.questionId;
+                        const qTitle = item.dataset.questionTitle;
+                        document.body.removeChild(modal);
+                        loadQAChatView(qId, qTitle);
+                    });
+                });
+                
+                // Close modal when clicking outside
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        document.body.removeChild(modal);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
